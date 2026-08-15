@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -27,18 +28,61 @@ jobs:
           cache: gradle
 
       # --- auto-update -------------------------------------------------------
-      # 1) latest Morphe patches (submodules track the NexAlloy 'nexalloy' branch)
-      # 2) latest TeleVip addon sources (addons/televip/update.sh)
-      - name: Sync upstream patches (Morphe + TeleVip)
+      # 1) latest Morphe patches  (submodules track the NexAlloy 'nexalloy' branch)
+      # 2) latest TeleVip addon   (addons/televip/update.sh)
+      # 3) latest NexAlloy core   (merge upstream NexAlloy/NexAlloy main)
+      - name: Sync upstream (core + Morphe + TeleVip)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -u
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # 1) latest Morphe patches
           git submodule update --remote --init
+
+          # 2) latest TeleVip addon
           bash addons/televip/update.sh
+
+          # commit the sync changes first, so the tree is clean for the merge
           if [ -n "$(git status --porcelain)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -A
-            git commit -m "chore: auto-sync Morphe submodules + TeleVip addon [skip ci]" || true
+            git commit -m "chore: auto-sync Morphe + TeleVip [skip ci]" || true
             git push origin HEAD:main
+          fi
+
+          # 3) latest upstream NexAlloy core
+          git remote add upstream https://github.com/NexAlloy/NexAlloy.git 2>/dev/null \
+            || git remote set-url upstream https://github.com/NexAlloy/NexAlloy.git
+          git fetch upstream main
+          BEFORE=$(git rev-parse HEAD)
+          if git merge upstream/main -m "chore: merge upstream NexAlloy [skip ci]"; then
+            if [ "$(git rev-parse HEAD)" != "$BEFORE" ]; then
+              git push origin HEAD:main
+              echo "::notice::Merged upstream NexAlloy/NexAlloy main"
+            else
+              echo "::notice::Already up to date with upstream NexAlloy"
+            fi
+          else
+            git merge --abort
+            echo "::error::Auto-merge conflict with upstream NexAlloy/NexAlloy. Resolve manually and push."
+            gh issue create \
+              --title "Auto-sync: merge conflict with upstream NexAlloy" \
+              --body "Automatic merge of upstream \`NexAlloy/NexAlloy\` (\`main\`) into this fork conflicted on $(date -u +%F).
+
+Resolve it manually:
+
+\`\`\`bash
+git fetch upstream main
+git merge upstream/main
+# fix conflicts, then:
+git add -A && git commit -am 'resolve upstream merge'
+git push origin main
+\`\`\`
+
+The APK in this run was still built from the pre-merge code." \
+              || echo "::warning::Could not open an issue (notifications may be unavailable)"
           fi
 
       # --- signing -----------------------------------------------------------

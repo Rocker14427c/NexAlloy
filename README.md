@@ -28,6 +28,10 @@
 
 This fork updates itself and builds its own APK automatically:
 
+- **NexAlloy core** is kept in sync with upstream
+  [NexAlloy/NexAlloy](https://github.com/NexAlloy/NexAlloy) (`main`) by merging
+  it in CI. If the merge conflicts, an issue is opened automatically for manual
+  resolution and the build continues from the pre-merge code.
 - **TeleVip addon** lives in `addons/televip/` and is synced from upstream
   [mustafa1dev/TeleVip-Lsposed](https://github.com/mustafa1dev/TeleVip-Lsposed)
   by `addons/televip/update.sh` — run it any time (or let CI do it). The
@@ -36,7 +40,7 @@ This fork updates itself and builds its own APK automatically:
 - **Morphe patches** are git submodules tracking the NexAlloy `nexalloy`
   branch and are bumped by `git submodule update --remote`.
 - **GitHub Actions** (`.github/workflows/android.yml`) runs daily and on every
-  push: it syncs both, builds signed release + debug APKs, uploads them as
+  push: it syncs all three, builds signed release + debug APKs, uploads them as
   artifacts, and publishes a `autobuild` pre-release.
 
 To build locally:
