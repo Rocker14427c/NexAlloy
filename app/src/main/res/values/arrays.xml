@@ -10,5 +10,28 @@
         <item>com.instagram.barcelona</item>
         <item>com.strava</item>
         <item>com.alltrails.alltrails</item>
+        <!-- Telegram clients (TeleVip patches) -->
+        <item>org.telegram.messenger</item>
+        <item>org.telegram.messenger.web</item>
+        <item>org.telegram.plus</item>
+        <item>com.tgconnect.android</item>
+        <item>xyz.nextalone.nagram</item>
+        <item>app.nicegram</item>
+        <item>org.telegram.messenger.beta</item>
+        <item>nu.gpu.nagram</item>
+        <item>com.xplus.messenger</item>
+        <item>com.iMe.android</item>
+        <item>com.iMe.android.web</item>
+        <item>org.forkgram.messenger</item>
+        <item>org.forkclient.messenger.beta</item>
+        <item>ir.ilmili.telegraph</item>
+        <item>ru.dahl.messenger</item>
+        <item>nekox.messenger.broken</item>
+        <item>momo.gram</item>
+        <item>tw.nekomimi.nekogram</item>
+        <item>uz.unnarsx.cherrygram</item>
+        <item>org.forkgram.classic</item>
+        <item>org.telegram.group</item>
+        <item>fork.risin42.nagramx</item>
     </string-array>
 </resources>

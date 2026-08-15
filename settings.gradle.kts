@@ -36,3 +36,4 @@ android {
 rootProject.name = "NexAlloy"
 include(":app")
 include(":stub")
+include(":settingsadapter")

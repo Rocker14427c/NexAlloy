@@ -14,6 +14,9 @@
 #}
 
 -keep class io.github.nexalloy.MainHook { <init>(); }
+-keep class com.my.televip.MainHook { <init>(); }
+-keep class com.my.televip.** { *; }
+-keep class com.televip.** { *; }
 -keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
 -keepnames class * extends io.github.nexalloy.morphe.Fingerprint
 -keepclassmembers class **.* {

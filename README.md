@@ -79,6 +79,9 @@
 ### AllTrails
 - Enable Peak membership
 
+### Telegram (TeleVip)
+Telegram and its supported clients are patched by the bundled **TeleVip** engine ([mustafa1dev/TeleVip-Lsposed](https://github.com/mustafa1dev/TeleVip-Lsposed)). Settings are configured **inside Telegram** → Settings → TeleVip. Includes: hide "seen"/typing/online status, show deleted messages, save protected stories & voice messages, remove content-saving restrictions, disable stories, local premium, download speed boost, and more. Supported clients: Telegram, Telegram Beta/Web, Plus Messenger, Nagram/NagramX, Nekogram, Cherrygram, Nicegram, iMe, X Plus, Forkgram, Turrit, Telegraph, Telega, Momogram and others.
+
 ## Supports
 [![Discord Server](https://img.shields.io/badge/Join-Discord-5865F2.svg?logo=discord)](https://discord.gg/QWUrAA2mKq)  
 [![FAQ](https://img.shields.io/badge/Read-FAQ-orange.svg?logo=github)](https://github.com/NexAlloy/NexAlloy/wiki/Frequently-Asked-Questions)  
@@ -88,4 +91,5 @@ or [Create an issue](https://github.com/NexAlloy/NexAlloy/issues/new/choose)
 
 [DexKit](https://luckypray.org/DexKit/en/): a high-performance dex runtime parsing library.  
 [Morphe](https://morphe.software): Transform Your Android Apps  
-[ReVanced](https://revanced.app): Continuing the legacy of Vanced at [revanced.app](https://revanced.app)
+[ReVanced](https://revanced.app): Continuing the legacy of Vanced at [revanced.app](https://revanced.app)  
+[TeleVip](https://github.com/mustafa1dev/TeleVip-Lsposed): Telegram patches (GPL-3.0)

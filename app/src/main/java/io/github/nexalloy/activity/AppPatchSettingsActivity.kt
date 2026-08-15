@@ -16,6 +16,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import io.github.nexalloy.appPatchConfigurations
+import io.github.nexalloy.uiOnlyAppPatchConfigurations
 import io.github.nexalloy.R
 
 class AppPatchSettingsActivity : Activity() {
@@ -61,7 +62,8 @@ class AppPatchSettingsActivity : Activity() {
 
             // Retrieve appName from the Activity's Intent extras
             val appName = arguments?.getString(ARGUMENT_APP_NAME)
-            val appPatchInfo = appPatchConfigurations.find { it.appName == appName }
+            val allConfigs = appPatchConfigurations + uiOnlyAppPatchConfigurations
+            val appPatchInfo = allConfigs.find { it.appName == appName }
             if (appPatchInfo == null) throw Exception("AppPatchInfo not found, app_name: $appName")
             val defaultPatchStates = appPatchInfo.patches.associate { it.name to it.use }
 
@@ -98,6 +100,27 @@ class AppPatchSettingsActivity : Activity() {
             }.apply {
                 layoutResource = R.layout.preference_header_buttons
                 screen.addPreference(this)
+            }
+
+            if (appPatchInfo.patches.isEmpty()) {
+                Preference(context).apply {
+                    title = "TeleVip settings"
+                    summary = "Telegram tweaks are configured inside Telegram itself: open Telegram → Settings → TeleVip.\n\nMake sure this module is enabled in LSPosed and that Telegram (or your client) is selected in the module scope, then restart Telegram."
+                    isEnabled = false
+                    screen.addPreference(this)
+                }
+                Preference(context).apply {
+                    title = "Open Telegram"
+                    setOnPreferenceClickListener {
+                        runCatching {
+                            context.packageManager
+                                .getLaunchIntentForPackage(appPatchInfo.packageName)
+                                ?.let { startActivity(it) }
+                        }
+                        true
+                    }
+                    screen.addPreference(this)
+                }
             }
 
             for (patchInfo in appPatchInfo.patches.sortedBy { it.name }) {

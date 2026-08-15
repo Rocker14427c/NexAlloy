@@ -24,6 +24,7 @@ import io.github.nexalloy.BuildConfig
 import io.github.nexalloy.R
 import io.github.nexalloy.appPatchConfigurations
 import io.github.nexalloy.common.UpdateChecker
+import io.github.nexalloy.uiOnlyAppPatchConfigurations
 import kotlin.system.exitProcess
 
 class SettingsActivity : Activity() {
@@ -191,7 +192,7 @@ class SettingsActivity : Activity() {
                 patchSelectionCategory.addPreference(this)
             }
 
-            for (appPatchInfo in appPatchConfigurations) {
+            for (appPatchInfo in appPatchConfigurations + uiOnlyAppPatchConfigurations) {
                 patchSelectionCategory.addPreference(appPatchInfo.getPreference())
             }
         }

@@ -26,7 +26,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.chsbuffer.revancedxposed"
-        versionCode = 106
+        versionCode = 107
         versionName = "2.0.$versionCode"
         val patchVersion = Properties().apply {
             rootProject.file("morphe-patches/gradle.properties").inputStream().use { load(it) }
@@ -152,6 +152,10 @@ dependencies {
     implementation(libs.protobuf.javalite)
     implementation(libs.collections4)
     implementation(libs.lang3)
+    // TeleVip (Telegram patches)
+    implementation(libs.core)
+    implementation(libs.recyclerview)
+    implementation(libs.jcal)
 }
 
 protobuf {
@@ -296,6 +300,65 @@ abstract class CopyResourcesTask @Inject constructor() : DefaultTask() {
         }
     }
 }
+
+// Builds the TeleVip settings UI adapter APK (:settingsadapter), extracts its
+// largest classes.dex and embeds it as a hex string into `DexHolder.java`, which
+// is injected at runtime into Telegram's classloader by DexInjector.
+val copyLargestDexAsJava by tasks.registering {
+    dependsOn(":settingsadapter:assembleDebug")
+
+    doLast {
+        val apkDirs = listOf(
+            File(rootDir, "settingsadapter/build/outputs/apk/debug"),
+            File(rootDir, "settingsadapter/build/intermediates/apk/debug"),
+        )
+        val apkFile = apkDirs.asSequence()
+            .filter { it.isDirectory }
+            .flatMap { dir -> dir.listFiles()?.asSequence() ?: emptySequence() }
+            .filter { it.name.endsWith(".apk") }
+            .maxByOrNull { it.length() }
+            ?: throw GradleException("settingsadapter debug APK not found in: $apkDirs")
+
+        val tempDir = File(buildDir, "tmp/dexExtract").apply { mkdirs() }
+        tempDir.listFiles()?.forEach { it.delete() }
+        copy {
+            from(zipTree(apkFile))
+            into(tempDir)
+            include("classes*.dex")
+        }
+
+        val dexFiles = tempDir.listFiles { f -> f.name.startsWith("classes") && f.name.endsWith(".dex") }
+            ?.toList() ?: emptyList()
+        if (dexFiles.isEmpty()) throw GradleException("No dex files found in $apkFile")
+
+        val largestDex = dexFiles.maxByOrNull { it.length() }!!
+        val hex = largestDex.readBytes().joinToString("") { String.format("%02X", it) }
+
+        val outputDir = File(projectDir, "src/main/java/com/my/televip/dex").apply { mkdirs() }
+        val javaFile = File(outputDir, "DexHolder.java")
+        javaFile.writeText(
+            """
+            package com.my.televip.dex;
+
+            public class DexHolder {
+                public static final byte[] DEX_BYTES = hexToBytes("$hex");
+
+                private static byte[] hexToBytes(String hex) {
+                    int len = hex.length();
+                    byte[] data = new byte[len / 2];
+                    for (int i = 0; i < len; i += 2) {
+                        data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                                + Character.digit(hex.charAt(i+1), 16));
+                    }
+                    return data;
+                }
+            }
+            """.trimIndent()
+        )
+        logger.lifecycle("Generated DexHolder with largest dex: ${largestDex.name} (${largestDex.length()} bytes)")
+    }
+}
+tasks.named("preBuild") { dependsOn(copyLargestDexAsJava) }
 
 androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->

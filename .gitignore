@@ -19,3 +19,6 @@ local.properties
 *.jks
 *.keystore
 signing.properties
+
+# Generated at build time from the :settingsadapter dex (TeleVip)
+app/src/main/java/com/my/televip/dex/DexHolder.java

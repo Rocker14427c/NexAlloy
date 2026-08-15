@@ -24,3 +24,10 @@ val appPatchConfigurations = listOf(
 )
 
 val patchesByPackage = appPatchConfigurations.associate { it.packageName to it.patches }
+
+// Apps shown in the app list but not handled by NexAlloy's DexKit patch engine.
+// Telegram and its clients are hooked by the bundled TeleVip module instead
+// (com.my.televip.MainHook), with settings injected inside the Telegram app.
+val uiOnlyAppPatchConfigurations = listOf(
+    AppPatchInfo("Telegram", "org.telegram.messenger", emptyArray()),
+)
