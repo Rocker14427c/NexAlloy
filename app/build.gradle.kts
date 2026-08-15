@@ -334,28 +334,37 @@ val copyLargestDexAsJava by tasks.registering {
         val largestDex = dexFiles.maxByOrNull { it.length() }!!
         val hex = largestDex.readBytes().joinToString("") { String.format("%02X", it) }
 
+        // Java string constants are limited to 65535 UTF-8 bytes, so split the
+        // hex payload into small chunks that are concatenated at runtime.
+        val chunks = hex.chunked(60000)
+        val partsBlock = chunks.joinToString(",\n") { "            \"$it\"" }
+
         val outputDir = File(projectDir, "src/main/java/com/my/televip/dex").apply { mkdirs() }
         val javaFile = File(outputDir, "DexHolder.java")
         javaFile.writeText(
-            """
-            package com.my.televip.dex;
-
-            public class DexHolder {
-                public static final byte[] DEX_BYTES = hexToBytes("$hex");
-
-                private static byte[] hexToBytes(String hex) {
-                    int len = hex.length();
-                    byte[] data = new byte[len / 2];
-                    for (int i = 0; i < len; i += 2) {
-                        data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                                + Character.digit(hex.charAt(i+1), 16));
-                    }
-                    return data;
-                }
-            }
-            """.trimIndent()
+            "package com.my.televip.dex;\n\n" +
+                "public class DexHolder {\n" +
+                "    private static final String[] PARTS = new String[] {\n" +
+                partsBlock + "\n" +
+                "    };\n\n" +
+                "    public static final byte[] DEX_BYTES = hexToBytes(join(PARTS));\n\n" +
+                "    private static String join(String[] parts) {\n" +
+                "        StringBuilder sb = new StringBuilder();\n" +
+                "        for (String part : parts) sb.append(part);\n" +
+                "        return sb.toString();\n" +
+                "    }\n\n" +
+                "    private static byte[] hexToBytes(String hex) {\n" +
+                "        int len = hex.length();\n" +
+                "        byte[] data = new byte[len / 2];\n" +
+                "        for (int i = 0; i < len; i += 2) {\n" +
+                "            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)\n" +
+                "                    + Character.digit(hex.charAt(i+1), 16));\n" +
+                "        }\n" +
+                "        return data;\n" +
+                "    }\n" +
+                "}\n"
         )
-        logger.lifecycle("Generated DexHolder with largest dex: ${largestDex.name} (${largestDex.length()} bytes)")
+        logger.lifecycle("Generated DexHolder with largest dex: ${largestDex.name} (${largestDex.length()} bytes, ${chunks.size} chunks)")
     }
 }
 tasks.named("preBuild") { dependsOn(copyLargestDexAsJava) }
