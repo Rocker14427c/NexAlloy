@@ -1,0 +1,59 @@
+name: Tag release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Restore signing keystore
+        id: keystore
+        uses: actions/cache@v4
+        with:
+          path: key.jks
+          key: nexalloy-signing-keystore-v1
+
+      - name: Generate signing keystore (first run only)
+        if: steps.keystore.outputs.cache-hit != 'true'
+        run: |
+          keytool -genkeypair -v \
+            -keystore key.jks -alias nexalloy \
+            -keyalg RSA -keysize 2048 -validity 10950 \
+            -storepass nexalloy123 -keypass nexalloy123 \
+            -dname "CN=NexAlloy AutoBuild, OU=CI, O=NexAlloy, C=US"
+
+      - name: Write signing.properties
+        run: |
+          cat > signing.properties <<'EOF'
+          KEYSTORE_PASSWORD=nexalloy123
+          KEYSTORE_ALIAS=nexalloy
+          KEYSTORE_ALIAS_PASSWORD=nexalloy123
+          KEYSTORE_FILE=../key.jks
+          EOF
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+
+      - name: Publish release
+        run: |
+          cd app/build/outputs/apk/release/
+          mv app-release.apk "NexAlloy-${{ github.ref_name }}.apk"
+          gh release create --prerelease "${{ github.ref_name }}" "NexAlloy-${{ github.ref_name }}.apk"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
