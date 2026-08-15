@@ -69,19 +69,7 @@ jobs:
             echo "::error::Auto-merge conflict with upstream NexAlloy/NexAlloy. Resolve manually and push."
             gh issue create \
               --title "Auto-sync: merge conflict with upstream NexAlloy" \
-              --body "Automatic merge of upstream \`NexAlloy/NexAlloy\` (\`main\`) into this fork conflicted on $(date -u +%F).
-
-Resolve it manually:
-
-\`\`\`bash
-git fetch upstream main
-git merge upstream/main
-# fix conflicts, then:
-git add -A && git commit -am 'resolve upstream merge'
-git push origin main
-\`\`\`
-
-The APK in this run was still built from the pre-merge code." \
+              --body "Automatic merge of upstream NexAlloy/NexAlloy (main) into this fork conflicted on $(date -u +%F). Resolve manually: git fetch upstream main && git merge upstream/main, fix conflicts, commit, push. This run's APK was still built from the pre-merge code." \
               || echo "::warning::Could not open an issue (notifications may be unavailable)"
           fi
 
