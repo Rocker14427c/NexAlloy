@@ -307,6 +307,10 @@ abstract class CopyResourcesTask @Inject constructor() : DefaultTask() {
 val copyLargestDexAsJava by tasks.registering {
     dependsOn(":settingsadapter:assembleDebug")
 
+    // The task body uses Gradle's copy{} / zipTree() APIs, which capture script
+    // object references that the Gradle configuration cache cannot serialize.
+    notCompatibleWithConfigurationCache("Uses copy{} / zipTree() which are not configuration-cache compatible")
+
     doLast {
         val apkDirs = listOf(
             File(rootDir, "settingsadapter/build/outputs/apk/debug"),
