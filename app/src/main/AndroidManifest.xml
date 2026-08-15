@@ -16,6 +16,7 @@
         <package android:name="com.instagram.barcelona" />
         <package android:name="com.strava" />
         <package android:name="com.alltrails.alltrails" />
+        <!-- TELEVIP_QUERIES_BEGIN -->
         <package android:name="org.telegram.messenger" />
         <package android:name="org.telegram.messenger.web" />
         <package android:name="org.telegram.plus" />
@@ -38,6 +39,7 @@
         <package android:name="org.forkgram.classic" />
         <package android:name="org.telegram.group" />
         <package android:name="fork.risin42.nagramx" />
+<!-- TELEVIP_QUERIES_END -->
     </queries>
 
     <application

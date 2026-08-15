@@ -10,7 +10,7 @@
         <item>com.instagram.barcelona</item>
         <item>com.strava</item>
         <item>com.alltrails.alltrails</item>
-        <!-- Telegram clients (TeleVip patches) -->
+        <!-- TELEVIP_SCOPE_BEGIN -->
         <item>org.telegram.messenger</item>
         <item>org.telegram.messenger.web</item>
         <item>org.telegram.plus</item>
@@ -33,5 +33,6 @@
         <item>org.forkgram.classic</item>
         <item>org.telegram.group</item>
         <item>fork.risin42.nagramx</item>
+<!-- TELEVIP_SCOPE_END -->
     </string-array>
 </resources>

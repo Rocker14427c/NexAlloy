@@ -24,6 +24,32 @@
 
 <sub>If you've joined the YouTube beta program, please try the nightly build before reporting an issue.</sub>
 
+## Auto-update & building
+
+This fork updates itself and builds its own APK automatically:
+
+- **TeleVip addon** lives in `addons/televip/` and is synced from upstream
+  [mustafa1dev/TeleVip-Lsposed](https://github.com/mustafa1dev/TeleVip-Lsposed)
+  by `addons/televip/update.sh` — run it any time (or let CI do it). The
+  Telegram client list, LSPosed scope and `<queries>` are regenerated from
+  upstream's `ClientChecker.java`, so new clients appear automatically.
+- **Morphe patches** are git submodules tracking the NexAlloy `nexalloy`
+  branch and are bumped by `git submodule update --remote`.
+- **GitHub Actions** (`.github/workflows/android.yml`) runs daily and on every
+  push: it syncs both, builds signed release + debug APKs, uploads them as
+  artifacts, and publishes a `autobuild` pre-release.
+
+To build locally:
+
+```sh
+git submodule update --init --recursive
+bash addons/televip/update.sh
+./gradlew assembleRelease
+```
+
+(Set the `sdk.dir` in `local.properties` and add a `signing.properties` if you
+want your own signature; without one the release APK is unsigned.)
+
 ## Patches
 
 ### YouTube
