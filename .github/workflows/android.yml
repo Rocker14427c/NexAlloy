@@ -12,6 +12,12 @@ permissions:
   contents: write
   issues: write
 
+# Force gh to operate on THIS fork. The sync step adds an `upstream` git
+# remote, and gh would otherwise prefer `upstream` (NexAlloy/NexAlloy)
+# over `origin` when resolving the repository.
+env:
+  GH_REPO: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
